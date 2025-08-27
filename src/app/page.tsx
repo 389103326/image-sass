@@ -1,14 +1,18 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { UserInfo, SessionProvider } from "./user-info";
-// import { signIn } from "@/app/lib/auth-client";
+import { auth } from "@/server/auth";
+import { redirect } from "next/navigation";
 
-export default function Home() {
-  console.log("hello world");
+export default async function Home() {
+  const session = await auth();
+  console.log("session", session);
+
+  if (!session) {
+    redirect("/api/auth/signin");
+  }
 
   return (
     <SessionProvider>

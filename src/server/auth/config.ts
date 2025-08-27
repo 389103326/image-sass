@@ -1,6 +1,6 @@
 // server/auth/config.ts
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { type DefaultSession, type NextAuthConfig } from "next-auth";
+import type { DefaultSession, NextAuthConfig } from "next-auth";
 
 import { db } from "../db/index";
 import {
@@ -9,7 +9,7 @@ import {
   users,
   verificationTokens,
 } from "@/server/db/schema";
-import GithubProvider from "next-auth/providers/github"
+import GithubProvider from "next-auth/providers/github";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -19,13 +19,12 @@ declare module "next-auth" {
   }
 }
 
-
 export const authConfig = {
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-    })
+    }),
   ],
   adapter: DrizzleAdapter(db, {
     usersTable: users,
@@ -34,13 +33,19 @@ export const authConfig = {
     verificationTokensTable: verificationTokens,
   }),
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    session: ({ session, user }) => {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+        },
+      };
+    },
+    authorized: async ({ auth }) => {
+      console.log("authorized", auth);
+      return !!auth?.user;
+    },
   },
 } satisfies NextAuthConfig;
 
