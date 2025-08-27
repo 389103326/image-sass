@@ -14,10 +14,11 @@ export const users = pgTable("user", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name"),
-  email: text("email").unique(),
+  email: text("email").unique().notNull(),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
-})
+  createAt: timestamp("createAt", { mode: "date" }).defaultNow(),
+});
  
 export const accounts = pgTable(
   "account",
