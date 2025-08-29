@@ -1,18 +1,27 @@
+"use client";
+import { trpcClient } from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { UserInfo, SessionProvider } from "./user-info";
-import { auth } from "@/server/auth";
-import { redirect } from "next/navigation";
+// import { auth } from "@/server/auth";
+// import { redirect } from "next/navigation";
+import { useEffect } from "react";
 
-export default async function Home() {
-  const session = await auth();
-  console.log("session", session);
+export default function Home() {
+  // const session = await auth();
+  // console.log("session", session);
 
-  if (!session) {
-    redirect("/api/auth/signin");
-  }
+  // if (!session) {
+  //   redirect("/api/auth/signin");
+  // }
+
+  useEffect(() => {
+    trpcClient.hello.query().then((res) => {
+      console.log("res", res);
+    });
+  }, []);
 
   return (
     <SessionProvider>
