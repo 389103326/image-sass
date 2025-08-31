@@ -1,5 +1,5 @@
 import { createTRPCClient, httpBatchLink } from '@trpc/client';
-import type { TestRouter } from './trpc';
+import type { TestRouter } from './trpc-context-middleware';
 
 export const trpcClient = createTRPCClient<TestRouter>({
   links: [

@@ -1,20 +1,5 @@
-import { initTRPC, TRPCError } from "@trpc/server";
-import { auth } from "@/server/auth";
-
-export const createTRPCContext = async () => {
-  const session = await auth();
-  console.log("session-->", session);
-
-  if (!session?.user) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-    });
-  }
-
-  return {
-    session,
-  };
-};
+import { initTRPC } from "@trpc/server";
+import { createTRPCContext } from "@trpc/tanstack-react-query";
 
 /**
  * Initialization of tRPC backend
@@ -30,13 +15,12 @@ export const router = t.router;
 export const publicProcedure = t.procedure;
 
 export const testRouter = router({
-  hello: publicProcedure.query(({ ctx }) => {
-    console.log("ctx", ctx.session);
-
+  hello: publicProcedure.query(async ({ ctx }) => {
+    console.log("ctx", ctx);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     return {
       hello: "world",
     };
   }),
 });
-
 export type TestRouter = typeof testRouter;
