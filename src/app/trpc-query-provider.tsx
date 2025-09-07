@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TRPCProvider } from '../utils/context';
-import { trpcClient } from '../utils/client';
+import { trpcClient } from "../utils/client-test";
 
 function makeQueryClient() {
   return new QueryClient({
