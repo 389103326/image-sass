@@ -91,3 +91,19 @@ export const authenticators = pgTable(
     },
   ]
 )
+
+export const files = pgTable("files", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  type: text("type").notNull(),
+  path: text("path").notNull(),
+  url: text("url").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  deletedAt: timestamp("deleted_at", { mode: "date" }),
+  contentType: text("content_type").notNull(),
+});

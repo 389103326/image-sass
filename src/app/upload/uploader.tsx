@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import Uppy, { Meta } from "@uppy/core";
+import React, { useEffect, useState } from "react";
+import Uppy, { Meta, type UppyFile } from "@uppy/core";
 import { Dashboard } from "@uppy/react";
 import AWSS3, { type AwsBody } from "@uppy/aws-s3";
 import { trpcClient } from "../../utils/client";
@@ -33,6 +33,29 @@ const Uploader = () => {
 
   const files = useUppyState(uppy, (s) => Object.values(s.files));
   const progress = useUppyState(uppy, (s) => s.totalProgress);
+
+  useEffect(() => {
+    const handler: (
+      file: UppyFile<Meta, AwsBody> | undefined,
+      response: {
+        body?: AwsBody | undefined;
+        status: number;
+        bytesUploaded?: number | undefined;
+        uploadURL?: string | undefined;
+      }
+    ) => void = (file, res) => {
+      console.log("on upload-success", file, res);
+      // trpcClient.file.savefile.mutate({
+      //   id: file.id,
+      //   url: res.data?.url || "",
+      // });
+    };
+
+    uppy.on("upload-success", handler);
+    return () => {
+      uppy.off("upload-success", handler);
+    };
+  }, [uppy]);
 
   return (
     <div className="flex flex-col items-center gap-8">
