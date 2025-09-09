@@ -45,10 +45,12 @@ const Uploader = () => {
       }
     ) => void = (file, res) => {
       console.log("on upload-success", file, res);
-      // trpcClient.file.savefile.mutate({
-      //   id: file.id,
-      //   url: res.data?.url || "",
-      // });
+      // 上传成功之后保存到数据库
+      trpcClient.file.savefile.mutate({
+        name: file?.data instanceof File ? file?.data.name : "",
+        path: res.uploadURL ?? "",
+        type: file?.data?.type ?? "",
+      });
     };
 
     uppy.on("upload-success", handler);
