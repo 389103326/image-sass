@@ -28,7 +28,7 @@ export const fileRoute = router({
       // Call send operation on client with command object as input.
       // If you are using a custom http handler, you may call destroy() to close open connections.
       const { COS_APP_ID, COS_APP_KEY } = process.env;
-      console.log("mutation", COS_APP_ID, COS_APP_KEY);
+      console.log("createPresignedUrl mutation", COS_APP_ID, COS_APP_KEY);
       const client = new S3Client({
         endpoint: process.env.API_ENDPOINT,
         region: process.env.REGION,
@@ -44,12 +44,15 @@ export const fileRoute = router({
         Key: `${dateString}-${fileName.replaceAll(" ", "_")}`,
         ContentType: input.contentType,
         ContentLength: input.size,
+        // ContentDisposition: "inline",
       };
 
       const command = new PutObjectCommand(params);
       const url = await getSignedUrl(client, command, {
         expiresIn: 60, // 秒
       });
+
+      console.log("createPresignedUrl result", url);
 
       return {
         url,
@@ -100,4 +103,13 @@ export const fileRoute = router({
         throw new Error("保存文件时发生错误");
       }
     }),
+  listFiles: protectedProcedure.query(async ({ ctx }) => {
+    console.log("listFiles query", ctx);
+    const { session } = ctx;
+    const files = await db.query.files.findMany({
+      where: (files, { eq }) => eq(files.userId, session.user.id),
+      orderBy: (files, { desc }) => desc(files.createdAt),
+    });
+    return files;
+  }),
 });

@@ -11,6 +11,9 @@ import "@uppy/core/css/style.min.css";
 import "@uppy/dashboard/css/style.min.css";
 
 const Uploader = () => {
+  const [fileList, setFileList] = useState<unknown[]>([]);
+  const [isPending, setIsPending] = useState(false);
+
   const [uppy] = useState(() => {
     const uppy = new Uppy<Meta, AwsBody>({
       restrictions: {
@@ -20,7 +23,7 @@ const Uploader = () => {
     uppy.use(AWSS3, {
       shouldUseMultipart: false,
       getUploadParameters(file) {
-        console.log(file);
+        console.log("getUploadParameters", file);
         return trpcClient.file.createPresignedUrl.mutate({
           fileName: file.data instanceof File ? file.data.name : "test",
           contentType: file.data instanceof File ? file.data.type : "",
@@ -59,15 +62,39 @@ const Uploader = () => {
     };
   }, [uppy]);
 
+  useEffect(() => {
+    setIsPending(true);
+    trpcClient.file.listFiles
+      .query()
+      .then((res) => {
+        console.log("res", res);
+        setFileList(res);
+      })
+      .finally(() => {
+        setIsPending(false);
+      });
+  }, []);
+
   return (
     <div className="flex flex-col items-center gap-8">
-      <Dashboard theme="dark" uppy={uppy} />
+      {files.map((file) => {
+        const url = URL.createObjectURL(file?.data);
+        return <img src={url} key={file?.id} className="w-50" />;
+      })}
       <div>progress: {progress}</div>
-      <div className="flex gap-4 items-center">
-        {files.map((file) => {
-          const url = URL.createObjectURL(file?.data);
-          return <img src={url} key={file?.id} className="w-50" />;
-        })}
+      <Dashboard theme="dark" uppy={uppy} />
+      <div className="flex gap-4 items-center flex-wrap w-[80%]">
+        {isPending ? (
+          <div>loading...</div>
+        ) : (
+          fileList?.map((file) => {
+            return (
+              <div key={file?.id} className="w-60">
+                <img src={file?.url} alt="" />
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
