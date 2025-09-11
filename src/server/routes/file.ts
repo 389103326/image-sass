@@ -20,7 +20,10 @@ export const fileRoute = router({
     )
     .mutation(async ({ input }) => {
       const date = new Date();
-      const dateString = date.toISOString().replace(/:/g, "-");
+      const dateString = date
+        .toLocaleString()
+        .split(" ")[0]
+        .replace(/\//g, "-");
 
       // To send a request, you:
       // Initiate client with configuration (e.g. credentials, region).
@@ -41,7 +44,7 @@ export const fileRoute = router({
       const { fileName } = input;
       const params: PutObjectCommandInput = {
         Bucket: process.env.BUCKET_NAME,
-        Key: `${dateString}-${fileName.replaceAll(" ", "_")}`,
+        Key: `${dateString}/${fileName.replaceAll(" ", "_")}`,
         ContentType: input.contentType,
         ContentLength: input.size,
         // ContentDisposition: "inline",
